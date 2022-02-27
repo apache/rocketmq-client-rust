@@ -13,18 +13,14 @@ pub mod google {
 }
 
 pub mod org_apache_rocketmq {
-    
+
     #[derive(Debug)]
     struct RpcClient {}
-    
-
 }
 
 #[cfg(test)]
 pub mod tests {
 
     #[test]
-    fn it_works() {
-
-    }
+    fn it_works() {}
 }
