@@ -1,5 +1,5 @@
 use rocketmq::pb::messaging_service_server::MessagingServiceServer;
-use rocketmq::service::ServerService;
+use rocketmq::server::ServerService;
 use tonic::transport::Server;
 
 #[tokio::main]

@@ -1,7 +1,6 @@
 use crate::pb::{
     messaging_service_client::MessagingServiceClient, QueryRouteRequest, QueryRouteResponse,
 };
-use rustls::client::ServerCertVerifier;
 use tonic::{
     transport::{Channel, ClientTlsConfig},
     Request, Response,
@@ -12,22 +11,6 @@ pub struct RpcClient {
     remote_address: String,
 }
 
-struct TrustAllCertVerifier;
-
-impl ServerCertVerifier for TrustAllCertVerifier {
-    fn verify_server_cert(
-        &self,
-        end_entity: &rustls::Certificate,
-        intermediates: &[rustls::Certificate],
-        server_name: &rustls::ServerName,
-        scts: &mut dyn Iterator<Item = &[u8]>,
-        ocsp_response: &[u8],
-        now: std::time::SystemTime,
-    ) -> Result<rustls::client::ServerCertVerified, rustls::Error> {
-        Ok(rustls::client::ServerCertVerified::assertion())
-    }
-}
-
 impl RpcClient {
     pub async fn new(target: &'static str) -> Result<RpcClient, Box<dyn std::error::Error>> {
         let remote_address = String::from(target);
@@ -36,14 +19,7 @@ impl RpcClient {
             .tcp_nodelay(true)
             .connect_timeout(std::time::Duration::from_secs(3));
         if remote_address.starts_with("https://") {
-            let verifier = std::sync::Arc::new(TrustAllCertVerifier {});
-            let rustls_config = rustls::client::ClientConfig::builder()
-                .with_safe_defaults()
-                .with_custom_certificate_verifier(verifier)
-                .with_no_client_auth();
-            //TODO: Disable verify server certificate
-            let tls_config = ClientTlsConfig::new();
-            channel = channel.tls_config(tls_config)?;
+            channel = channel.tls_config(ClientTlsConfig::new())?;
         }
         let channel = channel.connect().await?;
         let stub = MessagingServiceClient::new(channel);
@@ -70,9 +46,17 @@ mod test {
     #[tokio::test]
     async fn test_connect() {
         let target = "http://127.0.0.1:5001";
-        let mut rpc_client = RpcClient::new(target)
+        let _rpc_client = RpcClient::new(target)
             .await
             .expect("Should be able to connect");
+    }
+
+    #[tokio::test]
+    async fn test_connect_staging() {
+        let target = "https://mq-inst-1080056302921134-bxuibml7.mq.cn-hangzhou.aliyuncs.com:80";
+        let _rpc_client = RpcClient::new(target)
+            .await
+            .expect("Failed to connect to staging proxy server");
     }
 
     #[tokio::test]
