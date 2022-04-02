@@ -1,16 +1,15 @@
 use crate::pb::{
-    messaging_service_server::MessagingService, messaging_service_server::MessagingServiceServer,
-    AckMessageRequest, AckMessageResponse, ChangeInvisibleDurationRequest,
-    ChangeInvisibleDurationResponse, EndTransactionRequest, EndTransactionResponse,
-    ForwardMessageToDeadLetterQueueRequest, ForwardMessageToDeadLetterQueueResponse,
-    HeartbeatRequest, HeartbeatResponse, NotifyClientTerminationRequest,
-    NotifyClientTerminationResponse, PullMessageRequest, PullMessageResponse,
-    QueryAssignmentRequest, QueryAssignmentResponse, QueryOffsetRequest, QueryOffsetResponse,
-    QueryRouteRequest, QueryRouteResponse, ReceiveMessageRequest, ReceiveMessageResponse,
-    SendMessageRequest, SendMessageResponse, TelemetryCommand,
+    messaging_service_server::MessagingService, AckMessageRequest, AckMessageResponse,
+    ChangeInvisibleDurationRequest, ChangeInvisibleDurationResponse, EndTransactionRequest,
+    EndTransactionResponse, ForwardMessageToDeadLetterQueueRequest,
+    ForwardMessageToDeadLetterQueueResponse, HeartbeatRequest, HeartbeatResponse,
+    NotifyClientTerminationRequest, NotifyClientTerminationResponse, PullMessageRequest,
+    PullMessageResponse, QueryAssignmentRequest, QueryAssignmentResponse, QueryOffsetRequest,
+    QueryOffsetResponse, QueryRouteRequest, QueryRouteResponse, ReceiveMessageRequest,
+    ReceiveMessageResponse, SendMessageRequest, SendMessageResponse, TelemetryCommand,
 };
 use futures::Stream;
-use tonic::{transport::Server, Request, Response, Status, Streaming};
+use tonic::{Request, Response, Status, Streaming};
 
 #[derive(Default)]
 pub struct ServerService {}
@@ -27,7 +26,10 @@ impl MessagingService for ServerService {
     ) -> Result<Response<QueryRouteResponse>, Status> {
         println!("{:?}", request);
         let reply = QueryRouteResponse {
-            status: None,
+            status: Some(crate::pb::Status {
+                code: crate::pb::Code::Ok as i32,
+                message: String::from("OK"),
+            }),
             message_queues: vec![],
         };
         Ok(Response::new(reply))

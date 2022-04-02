@@ -1,6 +1,5 @@
 use crate::pb::{
     messaging_service_client::MessagingServiceClient, QueryRouteRequest, QueryRouteResponse,
-    Resource,
 };
 use rustls::client::ServerCertVerifier;
 use tonic::{
@@ -66,9 +65,18 @@ impl RpcClient {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::pb::{Resource, Code};
 
     #[tokio::test]
     async fn test_connect() {
+        let target = "http://127.0.0.1:5001";
+        let mut rpc_client = RpcClient::new(target)
+            .await
+            .expect("Should be able to connect");
+    }
+
+    #[tokio::test]
+    async fn test_query_route() {
         let target = "http://127.0.0.1:5001";
         let mut rpc_client = RpcClient::new(target)
             .await
@@ -86,5 +94,7 @@ mod test {
             .query_route(request)
             .await
             .expect("Failed to query route");
+        let route_response = reply.into_inner();
+        assert_eq!(route_response.status.unwrap().code, Code::Ok as i32);
     }
 }
