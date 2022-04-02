@@ -1,15 +1,23 @@
 [package]
-name = "rocketmq-client-rust"
+name = "rocketmq"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = "0.6"
-prost = "0.9"
-prost-types = "0.9"
-tokio = { version = "1.0", features = ["full"]}
+futures = { version = "0.3", default-features = false, features = ["alloc"] }
+tonic = { version = "0.7", features = ["default", "tls", "compression"] }
+prost = "0.10"
+prost-types = "0.10"
+tokio = { version = "1", features = ["full"]}
+tokio-rustls = "0.23"
+rustls = {version = "0.20", features = ["default", "dangerous_configuration"]}
 
 [build-dependencies]
-tonic-build = "0.6"
+tonic-build = {version = "0.7", features = ["default", "compression"]}
+
+
+[[bin]]
+name = "server"
+path = "src/bin/server.rs"
