@@ -8,24 +8,22 @@ use tonic::{
 
 pub struct RpcClient {
     stub: MessagingServiceClient<Channel>,
-    remote_address: String,
+    peer_address: String,
 }
 
 impl RpcClient {
-    pub async fn new(target: &'static str) -> Result<RpcClient, Box<dyn std::error::Error>> {
-        let remote_address = String::from(target);
-
-        let mut channel = Channel::from_shared(target)?
+    pub async fn new(target: String) -> Result<RpcClient, Box<dyn std::error::Error>> {
+        let mut channel = Channel::from_shared(target.clone())?
             .tcp_nodelay(true)
             .connect_timeout(std::time::Duration::from_secs(3));
-        if remote_address.starts_with("https://") {
+        if target.starts_with("https://") {
             channel = channel.tls_config(ClientTlsConfig::new())?;
         }
         let channel = channel.connect().await?;
         let stub = MessagingServiceClient::new(channel);
         Ok(RpcClient {
             stub,
-            remote_address,
+            peer_address: target,
         })
     }
 
@@ -46,7 +44,7 @@ mod test {
     #[tokio::test]
     async fn test_connect() {
         let target = "http://127.0.0.1:5001";
-        let _rpc_client = RpcClient::new(target)
+        let _rpc_client = RpcClient::new(target.to_owned())
             .await
             .expect("Should be able to connect");
     }
@@ -54,7 +52,7 @@ mod test {
     #[tokio::test]
     async fn test_connect_staging() {
         let target = "https://mq-inst-1080056302921134-bxuibml7.mq.cn-hangzhou.aliyuncs.com:80";
-        let _rpc_client = RpcClient::new(target)
+        let _rpc_client = RpcClient::new(target.to_owned())
             .await
             .expect("Failed to connect to staging proxy server");
     }
@@ -62,7 +60,7 @@ mod test {
     #[tokio::test]
     async fn test_query_route() {
         let target = "http://127.0.0.1:5001";
-        let mut rpc_client = RpcClient::new(target)
+        let mut rpc_client = RpcClient::new(target.to_owned())
             .await
             .expect("Should be able to connect");
         let topic = Resource {
