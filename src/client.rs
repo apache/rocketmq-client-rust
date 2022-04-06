@@ -8,40 +8,7 @@ use tonic::{
     Request, Response,
 };
 
-#[derive(Debug, PartialEq)]
-pub struct Credentials {
-    access_key: String,
-    access_secret: String,
-    session_token: Option<String>,
-}
-
-pub trait CredentialProvider {
-    fn get_credentials(&self) -> Credentials;
-}
-
-pub struct StaticCredentialProvider {
-    access_key: String,
-    access_secret: String,
-}
-
-impl StaticCredentialProvider {
-    pub fn new(access_key: &str, access_secret: &str) -> Self {
-        Self {
-            access_key: access_key.to_owned(),
-            access_secret: access_secret.to_owned(),
-        }
-    }
-}
-
-impl CredentialProvider for StaticCredentialProvider {
-    fn get_credentials(&self) -> Credentials {
-        Credentials {
-            access_key: self.access_key.clone(),
-            access_secret: self.access_secret.clone(),
-            session_token: None,
-        }
-    }
-}
+use crate::credentials::CredentialProvider;
 
 #[derive(Default)]
 struct ClientConfig {
@@ -157,20 +124,6 @@ mod test {
             .expect("Failed to query route");
         let route_response = reply.into_inner();
         assert_eq!(route_response.status.unwrap().code, Code::Ok as i32);
-    }
-
-    #[test]
-    fn test_static_credentials_provider() {
-        let provider = StaticCredentialProvider::new("ak", "as");
-        let credentials = provider.get_credentials();
-        assert_eq!(
-            credentials,
-            Credentials {
-                access_key: String::from("ak"),
-                access_secret: String::from("as"),
-                session_token: None,
-            }
-        );
     }
 
     #[tokio::test]
