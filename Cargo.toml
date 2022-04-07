@@ -13,6 +13,8 @@ prost-types = "0.10"
 tokio = { version = "1", features = ["full"]}
 tokio-rustls = "0.23"
 rustls = {version = "0.20", features = ["default", "dangerous_configuration"]}
+gethostname = "0.2"
+thiserror = "1.0"
 
 [build-dependencies]
 tonic-build = {version = "0.7", features = ["default", "compression"]}
@@ -21,3 +23,7 @@ tonic-build = {version = "0.7", features = ["default", "compression"]}
 [[bin]]
 name = "server"
 path = "src/bin/server.rs"
+
+[[bin]]
+name = "task"
+path = "src/bin/task.rs"

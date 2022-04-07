@@ -82,6 +82,5 @@ mod test {
     fn test_environment_variable_credential_provider() {
         let env_credentials_provider = EnvironmentVariableCredentialProvider::new();
         assert_eq!(true, env_credentials_provider.is_err());
-
     }
 }
